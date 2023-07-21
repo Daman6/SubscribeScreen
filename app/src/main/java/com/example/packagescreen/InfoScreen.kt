@@ -13,9 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -28,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -50,12 +50,12 @@ val featuresList = mutableListOf<String>(
 )
 
 @Composable
-fun PlansDetails() {
-    HeaderTitleUi()
+fun PlansDetails(packagesHeaderList: List<PackageModel>) {
+    HeaderTitleUi(packagesHeaderList)
 }
 
 @Composable
-fun HeaderTitleUi() {
+fun HeaderTitleUi(packagesHeaderList: List<PackageModel>) {
     Column() {
         Row(
             modifier = Modifier
@@ -78,7 +78,7 @@ fun HeaderTitleUi() {
         }
         Spacer(modifier = Modifier.height(20.dp))
 
-        PriceItemUi()
+        PriceItemUi(packagesHeaderList)
 
         Column() {
             featuresList.forEach{
@@ -91,100 +91,163 @@ fun HeaderTitleUi() {
 }
 
 @Composable
-fun PriceItemUi() {
+fun PriceItemUi(packagesHeaderList: List<PackageModel>) {
     Row(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.End
     ) {
-        Box(
-            modifier = Modifier
-                .weight(2.2f)
-                .aspectRatio(2.2f)
-                .padding(5.dp),
-        ) {
-        }
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                .background(msnBrightBlue)
-                .padding(5.dp),
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize().padding(vertical = 3.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+//        Box(
+//            modifier = Modifier
+//                .weight(2.2f)
+//                .aspectRatio(2.2f)
+//                .padding(5.dp),
+//        ) {
+//        }
+//        Box(
+//            modifier = Modifier
+//                .weight(1f)
+//                .aspectRatio(1f)
+//                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+//                .background(msnBrightBlue)
+//                .padding(5.dp),
+//        ) {
+//            Column(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .padding(vertical = 3.dp),
+//                verticalArrangement = Arrangement.SpaceBetween,
+//                horizontalAlignment = Alignment.CenterHorizontally
+//            ) {
+//
+//                Text(
+//                    text = "Annual",
+//                    style = TextStyle(
+//                        fontSize = 18.sp,
+//                        color = Color.White,
+//                        fontFamily = acumin_pro,
+//                        fontWeight = FontWeight.W700
+//                    )
+//                )
+//                Spacer(modifier = Modifier.height(6.dp))
+//                Card(
+//                    modifier = Modifier.wrapContentSize(),
+//                    colors = CardDefaults.cardColors(Color.White)
+//                ) {
+//                    Text(
+//                        text = "Save 50%",
+//                        style = TextStyle(
+//                            color = Color.Black,
+//                            fontSize = 14.sp,
+//                            fontFamily = acumin_pro,
+//                            fontWeight = FontWeight.W600
+//                        ),
+//                        modifier = Modifier.padding(horizontal = 8.dp)
+//                    )
+//                }
+//                Spacer(modifier = Modifier.height(12.dp))
+//                Text(
+//                    text = "$199.99/yr",
+//                    style = TextStyle(
+//                        fontSize = 14.sp,
+//                        color = Color.White,
+//                        fontWeight = FontWeight.W400
+//                    )
+//                )
+//            }
+//        }
+//        Spacer(modifier = Modifier.width(2.dp))
+//        Box(
+//            modifier = Modifier
+//                .weight(1f)
+//                .aspectRatio(1f)
+//                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+//                .background(msnBlue)
+//                .padding(5.dp),
+//        ) {
+//            Column(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .padding(vertical = 3.dp),
+//                verticalArrangement = Arrangement.SpaceBetween,
+//                horizontalAlignment = Alignment.CenterHorizontally
+//            ) {
+//
+//                Text(
+//                    text = "Monthly",
+//                    style = TextStyle(
+//                        fontSize = 18.sp,
+//                        color = Color.White,
+//                        fontFamily = acumin_pro,
+//                        fontWeight = FontWeight.W700
+//                    )
+//                )
+//                Text(
+//                    text = "$199.99/yr",
+//                    style = TextStyle(
+//                        fontSize = 14.sp,
+//                        color = Color.White,
+//                        fontWeight = FontWeight.W400
+//                    )
+//                )
+//            }
+//        }
 
-                Text(
-                    text = "Annual",
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        color = Color.White,
-                        fontFamily = acumin_pro,
-                        fontWeight = FontWeight.W700
-                    )
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Card(
-                    modifier = Modifier.wrapContentSize(),
-                    colors = CardDefaults.cardColors(Color.White)
+        LazyRow(){
+            items(packagesHeaderList){item->
+                Box(
+                    modifier = Modifier
+//                        .weight(1f)
+//                        .aspectRatio(1f)
+                        .size(150.dp)
+                        .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                        .background(msnBrightBlue)
+                        .padding(5.dp),
                 ) {
-                    Text(
-                        text = "Save 50%",
-                        style = TextStyle(
-                            color = Color.Black,
-                            fontSize = 14.sp,
-                            fontFamily = acumin_pro,
-                            fontWeight = FontWeight.W600
-                        ),
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = "$199.99/yr",
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.W400
-                    )
-                )
-            }
-        }
-        Spacer(modifier = Modifier.width(2.dp))
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                .background(msnBlue)
-                .padding(5.dp),
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize().padding(vertical = 3.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(vertical = 3.dp),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
 
-                Text(
-                    text = "Monthly",
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        color = Color.White,
-                        fontFamily = acumin_pro,
-                        fontWeight = FontWeight.W700
-                    )
-                )
-                Text(
-                    text = "$199.99/yr",
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.W400
-                    )
-                )
+                        Text(
+                            text = item.title,
+                            style = TextStyle(
+                                fontSize = 18.sp,
+                                color = Color.White,
+                                fontFamily = acumin_pro,
+                                fontWeight = FontWeight.W700
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Card(
+                            modifier = Modifier.wrapContentSize(),
+                            colors = CardDefaults.cardColors(Color.White)
+                        ) {
+                            Text(
+                                text = item.discountPercentage,
+                                style = TextStyle(
+                                    color = Color.Black,
+                                    fontSize = 14.sp,
+                                    fontFamily = acumin_pro,
+                                    fontWeight = FontWeight.W600
+                                ),
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = item.price,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                color = Color.White,
+                                fontWeight = FontWeight.W400
+                            )
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(2.dp))
             }
         }
     }
@@ -203,6 +266,7 @@ fun MarketingListItem(text : String ,isAvaiableInAnnual: Boolean, isAvaiableInMo
             text = text,
             style = TextStyle(
                 fontSize = 14.sp,
+                lineHeight = 18.9.sp,
                 fontFamily = acumin_pro,
                 fontWeight = FontWeight(600),
                 color = Color.Black
@@ -246,5 +310,5 @@ fun MarketingListItem(text : String ,isAvaiableInAnnual: Boolean, isAvaiableInMo
 @Preview
 @Composable
 fun PreviewScreen() {
-    PlansDetails()
+    PlansDetails(packagesHeaderList)
 }

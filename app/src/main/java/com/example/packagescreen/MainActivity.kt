@@ -3,7 +3,6 @@ package com.example.packagescreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,25 +10,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,23 +36,40 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.packagescreen.ui.theme.PackageScreenTheme
 
-val list = mutableListOf<String>(
+val annualList = listOf<String>(
     "Access ~225 live Capitals, Wizards, Washington Mystics, and Go-Go Games every year",
     "Watch on 3 supported devices at a time",
     "Discount on tickets for select Game of the Month"
 )
+val monthlyList = listOf<String>(
+    "Monthly access to live Capitals, Wizards, Mystics, and Go-Go Games",
+    "Watch on 1 supported device at a time"
+)
+
+data class PackageModel(
+    var title: String,
+    var isDiscountShown: Boolean,
+    var discountPercentage: String,
+    var price: String,
+    var list: List<String>
+){}
+
+
+val packagesHeaderList = listOf<PackageModel>(
+    PackageModel("Annual", true, "50%", "$199.99/year", annualList),
+    PackageModel("Monthly", false, "", "$24.99/month", monthlyList),
+    PackageModel("Monthly", false, "", "$24.99/month", monthlyList),
+)
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,16 +81,33 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Column(
-                        Modifier
-                            .background(Color.Gray)
-                            .padding(10.dp)
-                    ) {
-                        CardItemUi("Annual", true, "50%", "$199.99/year")
-                        Spacer(modifier = Modifier.height(10.dp))
-                        CardItemUi("Monthly", false, "", "$24.99/month")
-                    }
+                    PackageScreen()
+                }
+            }
+        }
+    }
 
+    @Composable
+    private fun PackageScreen() {
+        var showInfo by remember {
+            mutableStateOf(false)
+        }
+        Column(
+            Modifier
+                .background(Color.Gray)
+                .padding(10.dp)
+        ) {
+            if (showInfo) {
+                PlansDetails(packagesHeaderList)
+            } else {
+
+                LazyColumn(){
+                    items(packagesHeaderList){ item->
+                        CardItemUi(item) {
+                            showInfo = !showInfo
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
                 }
             }
         }
@@ -86,7 +116,10 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun CardItemUi(title: String, isDiscountShown: Boolean, discountPercentage: String, price: String) {
+fun CardItemUi(
+    item: PackageModel,
+    onIconClicked: () -> Unit
+) {
     Card(
         shape = RoundedCornerShape(4.dp),
         colors = CardDefaults.cardColors(Color.White),
@@ -97,18 +130,26 @@ fun CardItemUi(title: String, isDiscountShown: Boolean, discountPercentage: Stri
                 .padding(20.dp)
         ) {
             HeaderItemUi(
-                title = title,
-                titleColor = if (isDiscountShown) msnBrightBlue else Color(0xFF3A4765),
-                isDiscountShown = isDiscountShown,
-                discountPercentage = discountPercentage,
-                price = price
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(list) {
-                    ItemListUi(title = it)
-                }
+                title = item.title,
+                titleColor = if (item.isDiscountShown) msnBrightBlue else Color(0xFF3A4765),
+                isDiscountShown = item.isDiscountShown,
+                discountPercentage = item.discountPercentage,
+                price = item.price
+            ) {
+                onIconClicked()
             }
+            Spacer(modifier = Modifier.height(10.dp))
+
+            item.list.forEach {
+                ItemListUi(title = it)
+            }
+//            Box(modifier = Modifier.height(300.dp)) {
+//                LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+//                    items(item.list) {
+//                        ItemListUi(title = it)
+//                    }
+//                }
+//            }
             Spacer(modifier = Modifier.height(20.dp))
             Button(
                 onClick = { /*TODO*/ },
@@ -138,7 +179,8 @@ fun HeaderItemUi(
     titleColor: Color,
     isDiscountShown: Boolean,
     discountPercentage: String,
-    price: String
+    price: String,
+    onIconClicked: () -> Unit
 ) {
     Column {
         Row(
@@ -153,6 +195,9 @@ fun HeaderItemUi(
                 tint = Color.Gray,
                 modifier = Modifier
                     .size(20.dp)
+                    .clickable {
+                        onIconClicked()
+                    }
 
             )
         }
@@ -234,8 +279,3 @@ fun ItemListUi(title: String) {
 //    }
 //}
 
-@Preview
-@Composable
-fun PreviewItem() {
-    CardItemUi("Annual", true, "50%", "$199.99/year")
-}
