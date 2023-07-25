@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.packagescreen.ui.theme.PackageScreenTheme
@@ -48,11 +49,26 @@ import com.example.packagescreen.ui.theme.PackageScreenTheme
 val annualList = listOf<String>(
     "Access ~225 live Capitals, Wizards, Washington Mystics, and Go-Go Games every year",
     "Watch on 3 supported devices at a time",
+    "Discount on tickets for select Game of the Month",
+    "Access ~225 live Capitals, Wizards, Washington Mystics, and Go-Go Games every year",
+    "Watch on 3 supported devices at a time",
+    "Discount on tickets for select Game of the Month",
     "Discount on tickets for select Game of the Month"
 )
 val monthlyList = listOf<String>(
     "Monthly access to live Capitals, Wizards, Mystics, and Go-Go Games",
     "Watch on 1 supported device at a time"
+)
+
+
+val featuresList = mutableListOf<String>(
+    "Access to live Capitals, Wizards, Mystics, and Go-Go games ",
+    "Number of devices you can watch on at a time",
+    "Discount on tickets for select Game of the Month",
+    "20% discount on all Fanatics gear",
+    "Pre-sale ticket access to regular season & playoff matches",
+    "Automatic entry to monthly Monumental sweepstakes",
+    "First 10,000 subscribers receive exclusive MSN bobblehead package"
 )
 
 data class PackageModel(
@@ -61,14 +77,24 @@ data class PackageModel(
     var discountPercentage: String,
     var price: String,
     var list: List<String>
+    ){}
+
+data class FeatureModel(
+    var text :String,
+    var isAvaiableInAnnual : Boolean = false,
+    var isAvaiableInMonthly :Boolean = false
 ){}
 
 
 val packagesHeaderList = listOf<PackageModel>(
     PackageModel("Annual", true, "50%", "$199.99/year", annualList),
     PackageModel("Monthly", false, "", "$24.99/month", monthlyList),
-    PackageModel("Monthly", false, "", "$24.99/month", monthlyList),
+    PackageModel("Pre ", false, "", "$24.99/month", monthlyList),
 )
+
+//val packageFeatureList = listOf<FeatureModel>(
+//   PackageModel
+//)
 
 
 class MainActivity : ComponentActivity() {
@@ -92,18 +118,21 @@ class MainActivity : ComponentActivity() {
         var showInfo by remember {
             mutableStateOf(false)
         }
+        var btnName = remember {
+            mutableStateOf("")
+        }
         Column(
             Modifier
                 .background(Color.Gray)
                 .padding(10.dp)
         ) {
             if (showInfo) {
-                PlansDetails(packagesHeaderList)
+                PlansDetails(packagesHeaderList,btnName)
             } else {
 
                 LazyColumn(){
                     items(packagesHeaderList){ item->
-                        CardItemUi(item) {
+                        CardItemUi(item,btnName) {
                             showInfo = !showInfo
                         }
                         Spacer(modifier = Modifier.height(10.dp))
@@ -118,6 +147,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CardItemUi(
     item: PackageModel,
+    btnName : MutableState<String>,
     onIconClicked: () -> Unit
 ) {
     Card(
@@ -137,6 +167,7 @@ fun CardItemUi(
                 price = item.price
             ) {
                 onIconClicked()
+                btnName.value = item.title
             }
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -278,4 +309,3 @@ fun ItemListUi(title: String) {
 //        Text(text = "Save 50%", style = TextStyle(color = Color.White, fontSize = 16.sp,fontWeight = FontWeight.W600), modifier = Modifier.padding(horizontal = 10.dp))
 //    }
 //}
-
